@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unknown Actor Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+```
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: #333;
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .header {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .search-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .search-btn {
+        background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border: none;
+        padding: 15px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .search-btn.active {
+        background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .results-container {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    .results-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .results-table th,
+    .results-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .results-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #555;
+        position: sticky;
+        top: 0;
+    }
+
+    .results-table tr:hover {
+        background: #f8f9fa;
+    }
+
+    .profile-link {
+        color: #4facfe;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .profile-link:hover {
+        text-decoration: underline;
+    }
+
+    .action-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        margin: 2px;
+        transition: background 0.2s;
+    }
+
+    .action-btn:hover {
+        background: #218838;
+    }
+
+    .action-btn.link {
+        background: #6f42c1;
+    }
+
+    .action-btn.link:hover {
+        background: #5a32a3;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+        background: white;
+        margin: 50px auto;
+        padding: 20px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+    }
+
+    .close {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover {
+        color: #000;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #555;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .form-group textarea {
+        height: 80px;
+        resize: vertical;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 20px;
+        border-top: 2px solid #eee;
+        padding-top: 20px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
+
+    .btn-primary {
+        background: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #0056b3;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #545b62;
+    }
+
+    .actor-type-selector {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .actor-type-btn {
+        padding: 15px;
+        border: 2px solid #ddd;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.2s;
+    }
+
+    .actor-type-btn:hover {
+        border-color: #4facfe;
+        background: #f8f9ff;
+    }
+
+    .actor-type-btn.selected {
+        border-color: #4facfe;
+        background: #4facfe;
+        color: white;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+    }
+
+    .success-message {
+        background: #d4edda;
+        color: #155724;
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        border: 1px solid #c3e6cb;
+    }
+
+    .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        border: 1px solid #f5c6cb;
+    }
+
+    .bio-preview {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .priority-score {
+        font-weight: bold;
+        color: #28a745;
+    }
+
+    .existing-actors-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .existing-actors-table th,
+    .existing-actors-table td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .existing-actors-table tr:hover {
+        background: #f8f9fa;
+        cursor: pointer;
+    }
+
+    .existing-actors-table tr.selected {
+        background: #e3f2fd;
+    }
+
+    .search-filter {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+
+    .pagination-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 15px;
+        padding: 15px;
+        border-top: 1px solid #eee;
+    }
+
+    .load-more-btn {
+        background: #6f42c1;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s;
+    }
+
+    .load-more-btn:hover {
+        background: #5a32a3;
+    }
+
+    .load-more-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+
+    .pagination-info {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .checkbox-label {
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        margin-bottom: 8px;
+    }
+
+    .org-selection-container {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+        background: #fafafa;
+    }
+
+    .selected-org-item {
+        margin: 5px 0;
+        padding: 8px;
+        background: #e3f2fd;
+        border-radius: 4px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid #90caf9;
+    }
+
+    .selected-org-item input {
+        width: 150px;
+        padding: 4px 8px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        font-size: 12px;
+    }
+
+    .form-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    /* Global search styling */
+    #global-search:focus {
+        border-color: #4facfe !important;
+        box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+    }
+
+    #clear-search-btn:hover {
+        background: #545b62;
+    }
+</style>
+```
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Unknown Actor Management System</h1>
+            <p>Efficiently process unknown actors with smart categorization and automated linking</p>
+
+```
+        <div style="margin-top: 15px;">
+            <div style="position: relative; max-width: 500px;">
+                <input type="text" 
+                       id="global-search" 
+                       placeholder="Search unknown actors by username, name, or bio..." 
+                       style="width: 100%; padding: 12px 45px 12px 15px; border: 2px solid #ddd; border-radius: 25px; font-size: 14px; outline: none; transition: border-color 0.2s;"
+                       onkeyup="debouncedGlobalSearch()"
+                       onkeydown="if(event.key==='Enter') performGlobalSearch()"
+                       onfocus="this.style.borderColor='#4facfe'"
+                       onblur="this.style.borderColor='#ddd'">
+                <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #666; pointer-events: none;">🔍</span>
+            </div>
+            <button id="clear-search-btn" 
+                    onclick="clearGlobalSearch()" 
+                    style="margin-left: 10px; padding: 8px 15px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; display: none;">
+                Clear Search
+            </button>
+        </div>
+    </div>
+
+    <div class="search-options">
+        <button class="search-btn" onclick="loadActors('review')">
+            📋 Review Unknown Actors
+        </button>
+        <button class="search-btn" onclick="loadActors('high-priority')">
+            ⭐ High Priority Actors
+        </button>
+        <button class="search-btn" onclick="loadActors('tpusa')">
+            🏛️ TPUSA Related
+        </button>
+        <button class="search-btn" onclick="loadActors('tpaction')">
+            🎯 TPAction Related
+        </button>
+        <button class="search-btn" onclick="loadActors('tpstudents')">
+            🎓 TPStudents Related
+        </button>
+    </div>
+
+    <div class="results-container" id="results-container" style="display: none;">
+        <h3 id="results-title">Results</h3>
+        <div id="results-content">
+            <div class="loading">Loading...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Promote Actor Modal -->
+<div id="promote-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Promote Unknown Actor</h2>
+            <span class="close" onclick="closeModal('promote-modal')">&times;</span>
+        </div>
+
+        <div id="promote-content">
+            <div class="actor-type-selector">
+                <div class="actor-type-btn" onclick="selectActorType('person')">
+                    <h4>👤 Person</h4>
+                    <p>Individual actor</p>
+                </div>
+                <div class="actor-type-btn" onclick="selectActorType('organization')">
+                    <h4>🏢 Organization</h4>
+                    <p>Company or group</p>
+                </div>
+                <div class="actor-type-btn" onclick="selectActorType('chapter')">
+                    <h4>🏫 Chapter</h4>
+                    <p>Local chapter</p>
+                </div>
+                <div class="actor-type-btn" onclick="selectActorType('notable')">
+                    <h4>📝 Notable</h4>
+                    <p>Track but less relevant</p>
+                </div>
+            </div>
+
+            <div id="promote-form" style="display: none;">
+                <!-- Form will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Link to Existing Actor Modal -->
+<div id="link-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Link to Existing Actor</h2>
+            <span class="close" onclick="closeModal('link-modal')">&times;</span>
+        </div>
+
+        <div id="link-content">
+            <input type="text" class="search-filter" id="existing-actor-search" 
+                   placeholder="Search existing actors..." onkeyup="debouncedSearchActors()">>
+            
+            <div class="actor-type-selector">
+                <div class="actor-type-btn selected" onclick="filterActorType('all')">
+                    <h4>🔍 All</h4>
+                </div>
+                <div class="actor-type-btn" onclick="filterActorType('person')">
+                    <h4>👤 People</h4>
+                </div>
+                <div class="actor-type-btn" onclick="filterActorType('organization')">
+                    <h4>🏢 Organizations</h4>
+                </div>
+                <div class="actor-type-btn" onclick="filterActorType('chapter')">
+                    <h4>🏫 Chapters</h4>
+                </div>
+            </div>
+
+            <div id="existing-actors-list">
+                <div class="loading">Loading existing actors...</div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeModal('link-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmLinkToExisting()" id="confirm-link-btn" disabled>
+                    Link Selected Actor
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Supabase configuration - using direct REST API calls (no CDN dependencies)
+    const SUPABASE_URL = 'https://djzrlccihwqxtjkytcph.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqenJsY2NpaHdxeHRqa3l0Y3BoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MzcwMDEsImV4cCI6MjA2NzUxMzAwMX0.ZfXHyQExHbIRLBHbw77KaHd2dKupsBhPAKz-zBFkSUQ';
+
+    let currentSearchType = null;
+    let currentUnknownActor = null;
+    let selectedActorType = null;
+    let existingActors = [];
+    let filteredExistingActors = [];
+    let selectedExistingActor = null;
+    let organizations = [];
+    let existingRoleCategories = [];
+    let searchTimeout = null; // For debouncing search
+    let globalSearchTimeout = null; // For debouncing global search
+    
+    // Pagination variables
+    let currentPage = 0;
+    let pageSize = 100;
+    let hasMoreActors = true;
+    let currentActorTypeFilter = 'all';
+
+    // Direct Supabase REST API functions (no external dependencies)
+    async function supabaseRequest(endpoint, options = {}) {
+        const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
+        const headers = {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation',
+            ...options.headers
+        };
+        
+        const config = {
+            headers,
+            ...options
+        };
+        
+        console.log(`🌐 API Request: ${options.method || 'GET'} ${url}`);
+        
+        const response = await fetch(url, config);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`❌ API Error (${response.status}):`, errorText);
+            throw new Error(`API Error ${response.status}: ${errorText}`);
+        }
+        
+        const data = await response.json();
+        console.log(`✅ API Success:`, data);
+        return data;
+    }
+
+    // Call Supabase stored procedures/functions
+    async function callSupabaseFunction(functionName, params) {
+        const url = `${SUPABASE_URL}/rest/v1/rpc/${functionName}`;
+        const headers = {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json'
+        };
+        
+        console.log(`🔧 Function Call: ${functionName}`, params);
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(params)
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`❌ Function Error (${response.status}):`, errorText);
+            throw new Error(`Function Error ${response.status}: ${errorText}`);
+        }
+        
+        const data = await response.json();
+        console.log(`✅ Function Success:`, data);
+        return data;
+    }
+
+    // Load actors based on search type
+    async function loadActors(searchType) {
+        currentSearchType = searchType;
+        
+        // Update button states
+        document.querySelectorAll('.search-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        // Show results container
+        document.getElementById('results-container').style.display = 'block';
+        document.getElementById('results-content').innerHTML = '<div class="loading">Loading...</div>';
+
+        try {
+            let endpoint = 'unknown_actors?select=*&review_status=eq.pending';
+            
+            // Apply filters based on search type
+            switch(searchType) {
+                case 'review':
+                    // All actors, will filter on frontend for placeholder check
+                    break;
+                case 'high-priority':
+                    // All actors, will filter on frontend for priority
+                    break;
+                case 'tpusa':
+                    endpoint += '&or=(detected_username.ilike.*tpusa*,detected_username.ilike.*turning*point*,profile_bio.ilike.*tpusa*,profile_bio.ilike.*turning*point*)';
+                    break;
+                case 'tpaction':
+                    endpoint += '&or=(detected_username.ilike.*tpaction*,profile_bio.ilike.*tpaction*)';
+                    break;
+                case 'tpstudents':
+                    endpoint += '&or=(detected_username.ilike.*tpstudents*,profile_bio.ilike.*tpstudents*)';
+                    break;
+            }
+
+            endpoint += '&order=mention_count.desc&limit=50';
+
+            const data = await supabaseRequest(endpoint);
+
+            // Filter out placeholder accounts and those without profile data
+            let filteredData = data.filter(actor => {
+                // Exclude placeholder accounts
+                if (actor.x_profile_data && actor.x_profile_data.is_placeholder === true) {
+                    return false;
+                }
+                // Only include actors with profile data
+                if (!actor.profile_displayname) {
+                    return false;
+                }
+                return true;
+            });
+
+            // Apply priority filter for high-priority
+            if (searchType === 'high-priority') {
+                filteredData = filteredData.filter(actor => 
+                    (actor.mention_count * 2 + actor.author_count * 5) >= 20
+                );
+            }
+
+            displayResults(filteredData, searchType);
+
+        } catch (error) {
+            console.error('Error loading actors:', error);
+            document.getElementById('results-content').innerHTML = 
+                '<div class="error-message">Error loading actors: ' + error.message + '</div>';
+        }
+    }
+
+    // Display results in table
+    function displayResults(actors, searchType, searchTerm = null) {
+        const titles = {
+            'review': 'All Unknown Actors',
+            'high-priority': 'High Priority Actors',
+            'tpusa': 'TPUSA Related Actors',
+            'tpaction': 'TPAction Related Actors', 
+            'tpstudents': 'TPStudents Related Actors',
+            'search': searchTerm ? `Search Results for "${searchTerm}"` : 'Search Results'
+        };
+
+        document.getElementById('results-title').textContent = titles[searchType] + ` (${actors.length} found)`;
+
+        if (actors.length === 0) {
+            const noResultsMsg = searchType === 'search' && searchTerm ? 
+                `No unknown actors found matching "${searchTerm}". Try different keywords or check spelling.` :
+                'No actors found matching the criteria.';
+            document.getElementById('results-content').innerHTML = 
+                `<div class="no-results">${noResultsMsg}</div>`;
+            return;
+        }
+
+        let tableHTML = `
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Display Name</th>
+                        <th>Bio Preview</th>
+                        <th>Mentions</th>
+                        <th>Posts</th>
+                        <th>Priority</th>
+                        <th>Profile</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        actors.forEach(actor => {
+            const priorityScore = actor.mention_count * 2 + actor.author_count * 5;
+            const bioPreview = actor.profile_bio ? 
+                actor.profile_bio.substring(0, 100) + '...' : 'No bio';
+
+            tableHTML += `
+                <tr>
+                    <td><strong>@${actor.detected_username}</strong></td>
+                    <td>${actor.profile_displayname || 'N/A'}</td>
+                    <td><div class="bio-preview">${bioPreview}</div></td>
+                    <td>${actor.mention_count}</td>
+                    <td>${actor.author_count}</td>
+                    <td><span class="priority-score">${priorityScore}</span></td>
+                    <td>
+                        <a href="${actor.profile_url}" target="_blank" class="profile-link">
+                            View Profile
+                        </a>
+                    </td>
+                    <td>
+                        <button class="action-btn" onclick="openPromoteModal('${actor.id}')">
+                            Promote
+                        </button>
+                        <button class="action-btn link" onclick="openLinkModal('${actor.id}')">
+                            Link to Existing
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tableHTML += '</tbody></table>';
+        
+        // Add search tips for search results
+        if (searchType === 'search' && actors.length > 0) {
+            tableHTML += `
+                <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 4px; font-size: 14px; color: #666;">
+                    💡 <strong>Search Tips:</strong> Try searching by @username, display name, or keywords from their bio. 
+                    Use the filter buttons above for category-specific searches.
+                </div>
+            `;
+        }
+        
+        document.getElementById('results-content').innerHTML = tableHTML;
+    }
+
+    // Open promote modal
+    async function openPromoteModal(actorId) {
+        try {
+            const data = await supabaseRequest(`unknown_actors?select=*&id=eq.${actorId}`);
+
+            if (data.length === 0) {
+                throw new Error('Actor not found');
+            }
+
+            currentUnknownActor = data[0];
+            selectedActorType = null;
+
+            // Reset actor type selection
+            document.querySelectorAll('.actor-type-btn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('promote-form').style.display = 'none';
+
+            document.getElementById('promote-modal').style.display = 'block';
+
+        } catch (error) {
+            console.error('Error loading actor:', error);
+            alert('Error loading actor details');
+        }
+    }
+
+    // Select actor type for promotion
+    function selectActorType(type) {
+        selectedActorType = type;
+        
+        // Update button states
+        document.querySelectorAll('.actor-type-btn').forEach(btn => btn.classList.remove('selected'));
+        event.target.classList.add('selected');
+
+        // Generate form
+        generatePromoteForm(type);
+    }
+
+    // Generate promotion form based on actor type
+    async function generatePromoteForm(type) {
+        const actor = currentUnknownActor;
+        
+        // Load organizations and role categories for forms that need them
+        if ((type === 'person' || type === 'organization') && organizations.length === 0) {
+            await loadOrganizations();
+        }
+        
+        if (type === 'person' && existingRoleCategories.length === 0) {
+            await loadExistingRoleCategories();
+        }
+
+        let formHTML = '<div id="success-message" style="display: none;"></div>';
+
+        if (type === 'person') {
+            formHTML += `
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="full_name" value="${actor.profile_displayname || ''}">
+                </div>
+                <div class="form-group">
+                    <label>Present Role</label>
+                    <input type="text" id="present_role" value="">
+                </div>
+                <div class="form-group">
+                    <label>Role Category</label>
+                    <input type="text" id="role_category" list="role_categories" placeholder="Type or select existing category...">
+                    <datalist id="role_categories">
+                        ${existingRoleCategories.map(category => 
+                            `<option value="${category}">`
+                        ).join('')}
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    <label>Role History</label>
+                    <textarea id="role_history" placeholder="Previous roles, career progression, etc."></textarea>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" id="city" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>State</label>
+                        <input type="text" id="state" placeholder="e.g., Arizona, California" value="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>About</label>
+                    <textarea id="about">${actor.profile_bio || ''}</textarea>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="should_scrape" checked>
+                            Should Scrape Profile
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <!-- Empty space for alignment -->
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="is_tpusa_staff">
+                            TPUSA Staff
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="is_tpusa_affiliated">
+                            TPUSA Affiliated
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Organization Affiliations</label>
+                    <div id="organization-selector">
+                        <input type="text" id="org-search" placeholder="Search organizations..." 
+                               style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;"
+                               onkeyup="filterOrganizations()">
+                        <div id="org-list" class="org-selection-container">
+                            ${organizations.map(org => `
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="org-checkbox" value="${org.id}" data-name="${org.name}">
+                                    <strong>${org.name}</strong> <em>(${org.type})</em>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div id="selected-orgs" style="margin-top: 10px;"></div>
+                </div>
+            `;
+        } else if (type === 'organization') {
+            formHTML += `
+                <div class="form-group">
+                    <label>Organization Name</label>
+                    <input type="text" id="name" value="${actor.profile_displayname || ''}">
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="type">
+                        <option value="external">External</option>
+                        <option value="tpusa">TPUSA</option>
+                        <option value="affiliate">Affiliate</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Summary/Focus</label>
+                    <textarea id="summary_focus">${actor.profile_bio || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Parent Organization (Optional)</label>
+                    <select id="parent_organization">
+                        <option value="">Select parent organization...</option>
+                        ${organizations.map(org => 
+                            `<option value="${org.id}">${org.name}</option>`
+                        ).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Region Scope</label>
+                    <input type="text" id="region_scope" placeholder="e.g., Local, Regional, National">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="should_scrape" checked>
+                        Should Scrape Profile
+                    </label>
+                </div>
+            `;
+        } else if (type === 'chapter') {
+            formHTML += `
+                <div class="form-group">
+                    <label>Chapter Name</label>
+                    <input type="text" id="name" value="${actor.profile_displayname || ''}">
+                </div>
+                <div class="form-group">
+                    <label>School Type</label>
+                    <select id="school_type">
+                        <option value="college">College</option>
+                        <option value="high_school">High School</option>
+                    </select>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" id="city" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>State Code</label>
+                        <input type="text" id="state_code" placeholder="e.g., AZ, CA, TX" maxlength="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="should_scrape" checked>
+                        Should Scrape Profile
+                    </label>
+                </div>
+            `;
+        } else if (type === 'notable') {
+            formHTML += `
+                <div class="form-group">
+                    <label>Reason for Noting</label>
+                    <select id="reason">
+                        <option value="irrelevant">Irrelevant/Off-topic</option>
+                        <option value="spam">Spam/Bot Account</option>
+                        <option value="inactive">Inactive Account</option>
+                        <option value="duplicate">Duplicate/Already Tracked</option>
+                        <option value="low_quality">Low Quality Content</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notes (Optional)</label>
+                    <textarea id="notes" placeholder="Additional context or reasoning...">${actor.profile_bio ? 'Bio: ' + actor.profile_bio : ''}</textarea>
+                </div>
+            `;
+        }
+
+        formHTML += `
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeModal('promote-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="promoteActor()">
+                    ${type === 'notable' ? 'Move to Notable' : 'Create ' + type.charAt(0).toUpperCase() + type.slice(1)}
+                </button>
+            </div>
+        `;
+
+        document.getElementById('promote-form').innerHTML = formHTML;
+        document.getElementById('promote-form').style.display = 'block';
+
+        // Add organization change handlers for people
+        if (type === 'person') {
+            // Initialize organization checkboxes
+            updateSelectedOrganizations();
+            
+            // Add event listeners to organization checkboxes
+            document.querySelectorAll('.org-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectedOrganizations);
+            });
+        }
+    }
+
+    // Filter organizations in the search
+    function filterOrganizations() {
+        const searchTerm = document.getElementById('org-search').value.toLowerCase();
+        const orgList = document.getElementById('org-list');
+        const checkboxes = orgList.querySelectorAll('label');
+        
+        checkboxes.forEach(label => {
+            const text = label.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                label.style.display = 'block';
+            } else {
+                label.style.display = 'none';
+            }
+        });
+    }
+
+    // Update selected organizations display
+    function updateSelectedOrganizations() {
+        const selectedOrgs = document.getElementById('selected-orgs');
+        const checkedBoxes = document.querySelectorAll('.org-checkbox:checked');
+        
+        if (checkedBoxes.length === 0) {
+            selectedOrgs.innerHTML = '<em style="color: #666;">No organizations selected</em>';
+            return;
+        }
+
+        let html = '<strong style="margin-bottom: 10px; display: block;">Selected Organizations:</strong>';
+        checkedBoxes.forEach((checkbox, index) => {
+            const orgName = checkbox.getAttribute('data-name');
+            const isPrimary = index === 0; // First selected is primary
+            html += `
+                <div class="selected-org-item">
+                    <span>
+                        <strong>${orgName}</strong> 
+                        ${isPrimary ? '<em style="color: #1976d2;">(Primary)</em>' : ''}
+                    </span>
+                    <input type="text" placeholder="Role in organization..." 
+                           id="role_${checkbox.value}" 
+                           class="role-input">
+                </div>
+            `;
+        });
+        selectedOrgs.innerHTML = html;
+    }
+
+    // Load organizations
+    async function loadOrganizations() {
+        try {
+            const data = await supabaseRequest('organizations?select=id,name,type&order=name');
+            organizations = data;
+
+        } catch (error) {
+            console.error('Error loading organizations:', error);
+        }
+    }
+
+    // Load existing role categories
+    async function loadExistingRoleCategories() {
+        try {
+            const data = await supabaseRequest('people?select=role_category&role_category=not.is.null&role_category=neq.&order=role_category');
+            // Get unique role categories
+            const uniqueCategories = [...new Set(data.map(p => p.role_category).filter(Boolean))];
+            existingRoleCategories = uniqueCategories;
+
+        } catch (error) {
+            console.error('Error loading role categories:', error);
+        }
+    }
+
+    // Promote actor
+    async function promoteActor() {
+        const actor = currentUnknownActor;
+        const type = selectedActorType;
+
+        try {
+            let params = {
+                p_username: actor.detected_username,
+                p_platform: actor.platform
+            };
+
+            if (type === 'person') {
+                const fullName = document.getElementById('full_name').value || null;
+                const presentRole = document.getElementById('present_role').value || null;
+                const roleCategory = document.getElementById('role_category').value || null;
+                const roleHistory = document.getElementById('role_history').value || null;
+                const city = document.getElementById('city').value || null;
+                const state = document.getElementById('state').value || null;
+                const about = document.getElementById('about').value || null;
+                const shouldScrape = document.getElementById('should_scrape').checked;
+                const isTpusaStaff = document.getElementById('is_tpusa_staff').checked;
+                const isTpusaAffiliated = document.getElementById('is_tpusa_affiliated').checked;
+
+                // Combine city and state for location
+                const location = [city, state].filter(Boolean).join(', ') || null;
+
+                params = {
+                    ...params,
+                    p_full_name: fullName,
+                    p_present_role: presentRole,
+                    p_role_category: roleCategory,
+                    p_role_history: roleHistory,
+                    p_location: location,
+                    p_about: about,
+                    p_should_scrape: shouldScrape,
+                    p_is_tpusa_staff: isTpusaStaff,
+                    p_is_tpusa_affiliated: isTpusaAffiliated
+                };
+
+                // Handle multiple organizations
+                const selectedOrgIds = Array.from(document.querySelectorAll('.org-checkbox:checked')).map(cb => cb.value);
+                if (selectedOrgIds.length > 0) {
+                    // For now, set primary organization as first selected
+                    params.p_organization_id = selectedOrgIds[0];
+                    const primaryRole = document.getElementById(`role_${selectedOrgIds[0]}`);
+                    params.p_role_in_organization = primaryRole ? primaryRole.value : null;
+                    params.p_is_primary_org = true;
+                }
+
+            } else if (type === 'organization') {
+                const name = document.getElementById('name').value || null;
+                const orgType = document.getElementById('type').value;
+                const summaryFocus = document.getElementById('summary_focus').value || null;
+                const parentOrg = document.getElementById('parent_organization').value || null;
+                const regionScope = document.getElementById('region_scope').value || null;
+                const shouldScrape = document.getElementById('should_scrape').checked;
+
+                params = {
+                    ...params,
+                    p_org_name: name,
+                    p_org_type: orgType,
+                    p_summary_focus: summaryFocus,
+                    p_parent_organization_id: parentOrg,
+                    p_region_scope: regionScope,
+                    p_should_scrape: shouldScrape
+                };
+
+            } else if (type === 'chapter') {
+                const name = document.getElementById('name').value || null;
+                const schoolType = document.getElementById('school_type').value;
+                const city = document.getElementById('city').value || null;
+                const stateCode = document.getElementById('state_code').value || null;
+                const shouldScrape = document.getElementById('should_scrape').checked;
+
+                params = {
+                    ...params,
+                    p_chapter_name: name,
+                    p_school_type: schoolType,
+                    p_city: city,
+                    p_state_code: stateCode,
+                    p_should_scrape: shouldScrape
+                };
+
+            } else if (type === 'notable') {
+                const reason = document.getElementById('reason').value;
+                const notes = document.getElementById('notes').value || null;
+
+                params = {
+                    ...params,
+                    p_reason: reason,
+                    p_notes: notes
+                };
+            }
+
+            const functionName = type === 'notable' ? 'move_to_notable_actors' : `promote_to_${type}`;
+            const data = await callSupabaseFunction(functionName, params);
+
+            // For people with multiple organizations, create additional relationships
+            if (type === 'person') {
+                const selectedOrgIds = Array.from(document.querySelectorAll('.org-checkbox:checked')).map(cb => cb.value);
+                if (selectedOrgIds.length > 1) {
+                    // Skip first org (already handled as primary), add the rest
+                    for (let i = 1; i < selectedOrgIds.length; i++) {
+                        const orgId = selectedOrgIds[i];
+                        const roleInput = document.getElementById(`role_${orgId}`);
+                        const role = roleInput ? roleInput.value : null;
+                        
+                        try {
+                            await callSupabaseFunction('add_person_organization', {
+                                p_person_id: data,
+                                p_organization_id: orgId,
+                                p_role_in_organization: role,
+                                p_is_primary: false
+                            });
+                        } catch (error) {
+                            console.warn(`Failed to add secondary organization ${orgId}:`, error);
+                        }
+                    }
+                }
+            }
+
+            // Show success message
+            const successMessage = type === 'notable' ? 
+                'Successfully moved to notable actors!' : 
+                'Successfully promoted actor! Retroactive links created automatically.';
+            
+            document.getElementById('success-message').innerHTML = 
+                `<div class="success-message">${successMessage}</div>`;
+            document.getElementById('success-message').style.display = 'block';
+
+            // Refresh results
+            setTimeout(() => {
+                closeModal('promote-modal');
+                if (currentSearchType) {
+                    loadActors(currentSearchType);
+                }
+            }, 2000);
+
+        } catch (error) {
+            console.error('Error promoting actor:', error);
+            document.getElementById('success-message').innerHTML = 
+                '<div class="error-message">Error promoting actor: ' + error.message + '</div>';
+            document.getElementById('success-message').style.display = 'block';
+        }
+    }
+
+    // Open link to existing modal
+    async function openLinkModal(actorId) {
+        try {
+            const data = await supabaseRequest(`unknown_actors?select=*&id=eq.${actorId}`);
+
+            if (data.length === 0) {
+                throw new Error('Actor not found');
+            }
+
+            currentUnknownActor = data[0];
+            selectedExistingActor = null;
+            currentActorTypeFilter = 'all';
+
+            // Reset actor type buttons
+            document.querySelectorAll('#link-content .actor-type-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelector('#link-content .actor-type-btn').classList.add('selected');
+
+            // Load existing actors
+            await loadExistingActors();
+
+            document.getElementById('link-modal').style.display = 'block';
+
+        } catch (error) {
+            console.error('Error loading actor:', error);
+            alert('Error loading actor details');
+        }
+    }
+
+    // Load existing actors
+    async function loadExistingActors() {
+        try {
+            document.getElementById('existing-actors-list').innerHTML = '<div class="loading">Loading existing actors...</div>';
+
+            // Reset pagination
+            currentPage = 0;
+            hasMoreActors = true;
+            existingActors = [];
+
+            await loadMoreExistingActors();
+
+        } catch (error) {
+            console.error('Error loading existing actors:', error);
+            document.getElementById('existing-actors-list').innerHTML = 
+                '<div class="error-message">Error loading existing actors</div>';
+        }
+    }
+
+    // Load more existing actors (pagination)
+    async function loadMoreExistingActors() {
+        try {
+            const offset = currentPage * pageSize;
+
+            // Load people
+            const people = await supabaseRequest(`people?select=id,full_name,present_role&order=full_name&limit=${pageSize}&offset=${offset}`);
+
+            // Load organizations  
+            const orgs = await supabaseRequest(`organizations?select=id,name,type,summary_focus&order=name&limit=${pageSize}&offset=${offset}`);
+
+            // Load chapters
+            const chapters = await supabaseRequest(`chapters?select=id,name,city,state_code&order=name&limit=${pageSize}&offset=${offset}`);
+
+            // Combine new actors
+            const newActors = [
+                ...people.map(p => ({ ...p, actor_type: 'person', display_name: p.full_name, additional_info: p.present_role })),
+                ...orgs.map(o => ({ ...o, actor_type: 'organization', display_name: o.name, additional_info: o.summary_focus })),
+                ...chapters.map(c => ({ ...c, actor_type: 'chapter', display_name: c.name, additional_info: `${c.city}, ${c.state_code}` }))
+            ];
+
+            // Add to existing actors
+            existingActors = [...existingActors, ...newActors];
+
+            // Check if we have more data
+            hasMoreActors = people.length === pageSize || orgs.length === pageSize || chapters.length === pageSize;
+
+            // Apply current filter
+            applyActorTypeFilter();
+
+            currentPage++;
+
+        } catch (error) {
+            console.error('Error loading more actors:', error);
+            hasMoreActors = false;
+        }
+    }
+
+    // Display existing actors
+    function displayExistingActors() {
+        if (filteredExistingActors.length === 0) {
+            document.getElementById('existing-actors-list').innerHTML = 
+                '<div class="no-results">No actors found</div>';
+            return;
+        }
+
+        let tableHTML = `
+            <table class="existing-actors-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Name</th>
+                        <th>Additional Info</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        filteredExistingActors.forEach(actor => {
+            tableHTML += `
+                <tr onclick="selectExistingActor('${actor.id}', '${actor.actor_type}')" data-actor-id="${actor.id}">
+                    <td>${actor.actor_type}</td>
+                    <td><strong>${actor.display_name}</strong></td>
+                    <td>${actor.additional_info || 'N/A'}</td>
+                </tr>
+            `;
+        });
+
+        tableHTML += '</tbody></table>';
+
+        // Only show pagination controls if we're not in search mode and have more actors to load
+        const searchTerm = document.getElementById('existing-actor-search').value.trim();
+        if (!searchTerm && (hasMoreActors || currentPage > 1)) {
+            tableHTML += `
+                <div class="pagination-controls">
+                    <span class="pagination-info">
+                        Showing ${filteredExistingActors.length} actors
+                        ${hasMoreActors ? ' (more available)' : ''}
+                    </span>
+                    ${hasMoreActors ? `
+                        <button class="load-more-btn" onclick="loadMoreAndFilter()">
+                            Load More Actors
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+        } else if (searchTerm) {
+            // Show search results info
+            tableHTML += `
+                <div class="pagination-controls">
+                    <span class="pagination-info">
+                        Found ${filteredExistingActors.length} actors matching "${searchTerm}"
+                        ${filteredExistingActors.length === 150 ? ' (showing first 150)' : ''}
+                    </span>
+                </div>
+            `;
+        }
+
+        document.getElementById('existing-actors-list').innerHTML = tableHTML;
+    }
+
+    // Select existing actor
+    function selectExistingActor(actorId, actorType) {
+        selectedExistingActor = { id: actorId, type: actorType };
+
+        // Update selection UI
+        document.querySelectorAll('.existing-actors-table tr').forEach(tr => tr.classList.remove('selected'));
+        document.querySelector(`[data-actor-id="${actorId}"]`).classList.add('selected');
+
+        // Enable confirm button
+        document.getElementById('confirm-link-btn').disabled = false;
+    }
+
+    // Filter existing actors by type
+    function filterActorType(type) {
+        // Update button states
+        document.querySelectorAll('#link-content .actor-type-btn').forEach(btn => btn.classList.remove('selected'));
+        event.target.classList.add('selected');
+
+        currentActorTypeFilter = type;
+        applyActorTypeFilter();
+    }
+
+    // Apply actor type filter to existing actors
+    function applyActorTypeFilter() {
+        if (currentActorTypeFilter === 'all') {
+            filteredExistingActors = existingActors;
+        } else {
+            filteredExistingActors = existingActors.filter(actor => actor.actor_type === currentActorTypeFilter);
+        }
+
+        displayExistingActors();
+    }
+
+    // Load more actors and apply current filters
+    async function loadMoreAndFilter() {
+        await loadMoreExistingActors();
+    }
+
+    // Debounced search function to avoid too many database queries
+    function debouncedSearchActors() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(filterExistingActors, 300); // Wait 300ms after user stops typing
+    }
+
+    // Debounced global search function
+    function debouncedGlobalSearch() {
+        clearTimeout(globalSearchTimeout);
+        globalSearchTimeout = setTimeout(performGlobalSearch, 300); // Wait 300ms after user stops typing
+    }
+
+    // Perform global search on unknown actors
+    async function performGlobalSearch() {
+        const searchTerm = document.getElementById('global-search').value.toLowerCase().trim();
+        
+        // Show/hide clear button
+        const clearBtn = document.getElementById('clear-search-btn');
+        if (searchTerm) {
+            clearBtn.style.display = 'inline-block';
+        } else {
+            clearBtn.style.display = 'none';
+            // If search is cleared, hide results
+            document.getElementById('results-container').style.display = 'none';
+            return;
+        }
+
+        // Don't search for very short terms
+        if (searchTerm.length < 2) {
+            document.getElementById('results-container').style.display = 'none';
+            return;
+        }
+
+        try {
+            // Show results container and loading
+            document.getElementById('results-container').style.display = 'block';
+            document.getElementById('results-title').textContent = `Searching for "${searchTerm}"...`;
+            document.getElementById('results-content').innerHTML = '<div class="loading">Searching unknown actors...</div>';
+
+            // Clear active search button states since this is a global search
+            document.querySelectorAll('.search-btn').forEach(btn => btn.classList.remove('active'));
+            currentSearchType = 'search';
+
+            // Build search query - search username, display name, and bio
+            const searchQuery = `unknown_actors?select=*&review_status=eq.pending&or=(detected_username.ilike.*${searchTerm}*,profile_displayname.ilike.*${searchTerm}*,profile_bio.ilike.*${searchTerm}*)&order=mention_count.desc&limit=100`;
+            
+            const data = await supabaseRequest(searchQuery);
+
+            // Filter out placeholder accounts and those without profile data
+            let filteredData = data.filter(actor => {
+                // Exclude placeholder accounts
+                if (actor.x_profile_data && actor.x_profile_data.is_placeholder === true) {
+                    return false;
+                }
+                // Only include actors with profile data
+                if (!actor.profile_displayname) {
+                    return false;
+                }
+                return true;
+            });
+
+            displayResults(filteredData, 'search', searchTerm);
+
+        } catch (error) {
+            console.error('Error performing global search:', error);
+            document.getElementById('results-content').innerHTML = 
+                '<div class="error-message">Error searching unknown actors: ' + error.message + '</div>';
+        }
+    }
+
+    // Clear global search
+    function clearGlobalSearch() {
+        document.getElementById('global-search').value = '';
+        document.getElementById('clear-search-btn').style.display = 'none';
+        document.getElementById('results-container').style.display = 'none';
+        currentSearchType = null;
+        
+        // Clear any active search button states
+        document.querySelectorAll('.search-btn').forEach(btn => btn.classList.remove('active'));
+    }
+    async function filterExistingActors() {
+        const searchTerm = document.getElementById('existing-actor-search').value.toLowerCase().trim();
+        
+        // If search term is empty, show all loaded actors with current type filter
+        if (!searchTerm) {
+            applyActorTypeFilter();
+            return;
+        }
+
+        // If search term is too short, don't search yet
+        if (searchTerm.length < 2) {
+            filteredExistingActors = [];
+            displayExistingActors();
+            return;
+        }
+
+        try {
+            document.getElementById('existing-actors-list').innerHTML = '<div class="loading">Searching...</div>';
+
+            let searchResults = [];
+
+            // Search people if type allows
+            if (currentActorTypeFilter === 'all' || currentActorTypeFilter === 'person') {
+                const people = await supabaseRequest(
+                    `people?select=id,full_name,present_role&or=(full_name.ilike.*${searchTerm}*,present_role.ilike.*${searchTerm}*)&order=full_name&limit=50`
+                );
+                searchResults.push(...people.map(p => ({
+                    ...p, 
+                    actor_type: 'person', 
+                    display_name: p.full_name, 
+                    additional_info: p.present_role
+                })));
+            }
+
+            // Search organizations if type allows
+            if (currentActorTypeFilter === 'all' || currentActorTypeFilter === 'organization') {
+                const orgs = await supabaseRequest(
+                    `organizations?select=id,name,type,summary_focus&or=(name.ilike.*${searchTerm}*,summary_focus.ilike.*${searchTerm}*)&order=name&limit=50`
+                );
+                searchResults.push(...orgs.map(o => ({
+                    ...o, 
+                    actor_type: 'organization', 
+                    display_name: o.name, 
+                    additional_info: o.summary_focus
+                })));
+            }
+
+            // Search chapters if type allows
+            if (currentActorTypeFilter === 'all' || currentActorTypeFilter === 'chapter') {
+                const chapters = await supabaseRequest(
+                    `chapters?select=id,name,city,state_code&name.ilike.*${searchTerm}*&order=name&limit=50`
+                );
+                searchResults.push(...chapters.map(c => ({
+                    ...c, 
+                    actor_type: 'chapter', 
+                    display_name: c.name, 
+                    additional_info: `${c.city}, ${c.state_code}`
+                })));
+            }
+
+            // Update filtered results and display
+            filteredExistingActors = searchResults;
+            displayExistingActors();
+
+        } catch (error) {
+            console.error('Error searching actors:', error);
+            document.getElementById('existing-actors-list').innerHTML = 
+                '<div class="error-message">Error searching actors</div>';
+        }
+    }
+
+    // Confirm link to existing
+    async function confirmLinkToExisting() {
+        if (!selectedExistingActor) return;
+
+        try {
+            const params = {
+                p_username: currentUnknownActor.detected_username,
+                p_platform: currentUnknownActor.platform,
+                p_existing_actor_id: selectedExistingActor.id,
+                p_actor_type: selectedExistingActor.type,
+                // Add the missing optional parameters with null values
+                p_organization_id: null,
+                p_role_in_organization: null,
+                p_is_primary_org: false
+            };
+
+            const data = await callSupabaseFunction('attach_to_existing_actor', params);
+
+            alert('Successfully linked to existing actor! Retroactive links created automatically.');
+            
+            closeModal('link-modal');
+            if (currentSearchType) {
+                loadActors(currentSearchType);
+            }
+
+        } catch (error) {
+            console.error('Error linking to existing actor:', error);
+            alert('Error linking to existing actor: ' + error.message);
+        }
+    }
+
+    // Close modal
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    }
+
+    // Initialize app
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Unknown Actor Management System loaded');
+    });
+</script>
+```
+
+</body>
+</html>
